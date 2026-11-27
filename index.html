@@ -56,7 +56,9 @@
     display: grid; place-items: center;
     font-size: 44px; font-weight: 700;
     color: var(--sky-deep);
+    overflow: hidden;
   }
+  .avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
   .name { font-size: 28px; font-weight: 700; letter-spacing: .08em; }
   .bio {
     font-size: 15px; color: var(--ink-soft);
@@ -145,7 +147,7 @@
 </head>
 <body>
 <main>
-  <div class="avatar" aria-hidden="true">問</div>
+  <div class="avatar" id="avatar" aria-hidden="true">問</div>
   <h1 class="name">問問</h1>
   <p class="bio">想睡覺到永遠 <span class="zzz">zZ</span></p>
 
@@ -191,6 +193,7 @@
 
 <script>
   const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQLqCrWEIetydwjFFAclHLZx4Bi2qP5f4SA01dKWfhZm9ghLd-gajuTRYdZLlq18EvzSwj6D43j-1NJ/pub?gid=934528779&single=true&output=csv";
+  const AVATAR_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQLqCrWEIetydwjFFAclHLZx4Bi2qP5f4SA01dKWfhZm9ghLd-gajuTRYdZLlq18EvzSwj6D43j-1NJ/pub?gid=2013702964&single=true&output=csv";
   const PX_PER_SEC = 40; // 滾動速度，數字越大越快
 
   const track = document.getElementById("track");
@@ -232,6 +235,20 @@
       build(urls);
     })
     .catch(() => build([]));
+
+  // 頭貼：抓表單裡第一個網址，載入失敗就維持「問」字
+  fetch(AVATAR_CSV_URL)
+    .then(r => r.text())
+    .then(text => {
+      const url = (text.match(/https?:\/\/[^\s,"']+/) || [])[0];
+      if (!url) return;
+      const img = new Image();
+      img.alt = "問問的頭貼";
+      img.referrerPolicy = "no-referrer";
+      img.onload = () => document.getElementById("avatar").replaceChildren(img);
+      img.src = url;
+    })
+    .catch(() => {});
 </script>
 </body>
 </html>
