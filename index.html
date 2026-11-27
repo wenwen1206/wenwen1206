@@ -32,7 +32,8 @@
       radial-gradient(circle at 85% 30%, var(--white) 0 50px, transparent 51px),
       radial-gradient(circle at 78% 32%, var(--white) 0 35px, transparent 36px),
       linear-gradient(180deg, var(--sky-soft) 0%, var(--cream) 100%);
-    background-attachment: fixed;
+    background-color: var(--cream);
+    background-repeat: no-repeat;
     display: flex;
     justify-content: center;
     padding: 48px 16px 40px;
@@ -138,6 +139,34 @@
   .link .ico svg { width: 18px; height: 18px; fill: currentColor; }
   .link .label { flex: 1; text-align: center; margin-right: 44px; }
 
+
+  /* 作品區 */
+  .works { width: 100%; display: flex; flex-direction: column; gap: 12px; }
+  .works h2 { font-size: 17px; text-align: center; letter-spacing: .06em; margin: 8px 0 2px; }
+  .works h2 small { display: block; font-size: 12px; color: var(--ink-soft); font-weight: 500; margin-top: 2px; }
+  .work { background: var(--white); border-radius: 16px; overflow: hidden; }
+  .work .body { padding: 12px 16px 14px; }
+  .work .meta { display: flex; align-items: baseline; gap: 8px; }
+  .work .title { font-size: 16px; font-weight: 700; color: var(--ink); text-decoration: none; }
+  a.title:hover { color: var(--sky-deep); }
+  a.title::after { content: " ↗"; font-size: 12px; color: var(--sky-deep); }
+  .work .date { margin-left: auto; font-size: 12px; color: var(--ink-soft); flex: none; }
+  .work .note { font-size: 14px; color: var(--ink-soft); margin-top: 4px; line-height: 1.6; }
+  .slides { position: relative; aspect-ratio: 4 / 3; background: var(--cream); }
+  .slides img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; opacity: 0; transition: opacity .3s; }
+  .slides img.on { opacity: 1; }
+  .slides .nav {
+    position: absolute; top: 50%; transform: translateY(-50%);
+    width: 30px; height: 30px; border-radius: 50%; border: none;
+    background: rgba(255,255,255,.85); color: var(--sky-deep);
+    font: 700 16px/1 inherit; cursor: pointer; display: grid; place-items: center;
+  }
+  .slides .nav:hover { background: var(--white); }
+  .slides .prev { left: 8px; } .slides .next { right: 8px; }
+  .slides .dots { position: absolute; bottom: 8px; left: 0; right: 0; display: flex; justify-content: center; gap: 5px; }
+  .slides .dots i { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,.7); box-shadow: 0 0 0 1px var(--sky); }
+  .slides .dots i.on { background: var(--sky-deep); }
+
   footer { font-size: 12px; color: var(--ink-soft); margin-top: 8px; }
 
   @media (prefers-reduced-motion: reduce) {
@@ -188,6 +217,10 @@
       <span class="label">Facebook</span>
     </a>
   </nav>
+
+  <section class="works" id="works" hidden>
+    <h2>睡醒時做的東西<small>做完就扔在這裡</small></h2>
+  </section>
 
   <footer>☁ 正在睡覺，晚點回你</footer>
 </main>
@@ -248,6 +281,87 @@
       img.referrerPolicy = "no-referrer";
       img.onload = () => document.getElementById("avatar").replaceChildren(img);
       img.src = url;
+    })
+    .catch(() => {});
+
+  // 作品區
+  const WORKS_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQLqCrWEIetydwjFFAclHLZx4Bi2qP5f4SA01dKWfhZm9ghLd-gajuTRYdZLlq18EvzSwj6D43j-1NJ/pub?gid=528442747&single=true&output=csv";
+
+  function parseCSV(text) {
+    const rows = []; let row = [], cell = "", q = false;
+    for (let i = 0; i < text.length; i++) {
+      const c = text[i];
+      if (q) {
+        if (c === '"' && text[i + 1] === '"') { cell += '"'; i++; }
+        else if (c === '"') q = false;
+        else cell += c;
+      } else if (c === '"') q = true;
+      else if (c === ",") { row.push(cell); cell = ""; }
+      else if (c === "\n" || c === "\r") {
+        if (c === "\r" && text[i + 1] === "\n") i++;
+        row.push(cell); rows.push(row); row = []; cell = "";
+      } else cell += c;
+    }
+    if (cell || row.length) { row.push(cell); rows.push(row); }
+    return rows;
+  }
+
+  function el(tag, cls, text) {
+    const e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text) e.textContent = text;
+    return e;
+  }
+
+  function slideshow(urls) {
+    const box = el("div", "slides");
+    const imgs = urls.map((u, i) => {
+      const img = el("img", i === 0 ? "on" : "");
+      img.src = u; img.alt = ""; img.loading = "lazy";
+      box.appendChild(img);
+      return img;
+    });
+    if (urls.length > 1) {
+      let cur = 0;
+      const dots = el("div", "dots");
+      const dotEls = urls.map((_, i) => dots.appendChild(el("i", i === 0 ? "on" : "")));
+      const go = (d) => {
+        imgs[cur].classList.remove("on"); dotEls[cur].classList.remove("on");
+        cur = (cur + d + urls.length) % urls.length;
+        imgs[cur].classList.add("on"); dotEls[cur].classList.add("on");
+      };
+      const prev = el("button", "nav prev", "‹"); prev.setAttribute("aria-label", "上一張"); prev.onclick = () => go(-1);
+      const next = el("button", "nav next", "›"); next.setAttribute("aria-label", "下一張"); next.onclick = () => go(1);
+      box.append(prev, next, dots);
+    }
+    return box;
+  }
+
+  fetch(WORKS_CSV_URL)
+    .then(r => r.text())
+    .then(text => {
+      const rows = parseCSV(text).slice(1)
+        .filter(r => (r[1] || "").trim());
+      rows.sort((a, b) => (b[0] || "").localeCompare(a[0] || "")); // 新的在上面
+      const sec = document.getElementById("works");
+      rows.forEach(r => {
+        const [date, name, link, note] = r.map(x => (x || "").trim());
+        const pics = r.slice(4).map(x => x.trim()).filter(x => /^https?:\/\//.test(x));
+        const card = el("article", "work");
+        if (pics.length) card.appendChild(slideshow(pics));
+        const body = el("div", "body");
+        const meta = el("div", "meta");
+        let title;
+        if (/^https?:\/\//.test(link)) {
+          title = el("a", "title", name); title.href = link; title.target = "_blank"; title.rel = "noopener";
+        } else title = el("span", "title", name);
+        meta.append(title, el("span", "date", date));
+        body.appendChild(meta);
+        if (note) body.appendChild(el("p", "note", note));
+        card.appendChild(body);
+        sec.appendChild(card);
+      });
+      if (rows.length) sec.hidden = false;
     })
     .catch(() => {});
 </script>
