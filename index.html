@@ -145,6 +145,27 @@
   .works h2 { font-size: 17px; text-align: center; letter-spacing: .06em; margin: 8px 0 2px; }
   .works h2 small { display: block; font-size: 12px; color: var(--ink-soft); font-weight: 500; margin-top: 2px; }
   .work { background: var(--white); border-radius: 16px; overflow: hidden; }
+  .work .note { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+
+  /* 卡片輪播（中間凸出、兩側斜斜的） */
+  .works { overflow-x: clip; overflow-y: visible; margin: 0 -16px; padding: 0 16px 6px; width: calc(100% + 32px); }
+  .deck { position: relative; width: 100%; perspective: 1000px; touch-action: pan-y; }
+  .deck .work {
+    position: absolute; top: 0; left: 50%;
+    width: 76%;
+    transition: transform .45s cubic-bezier(.2,.7,.3,1), opacity .45s, filter .45s;
+    box-shadow: 0 6px 18px rgba(74,159,209,.18);
+  }
+  .deck .work:not(.center) { cursor: pointer; filter: saturate(.8) brightness(.97); }
+  .deck .work:not(.center) > * { pointer-events: none; }
+  .deck-ctrl { display: flex; align-items: center; justify-content: center; gap: 14px; }
+  .deck-ctrl button {
+    width: 36px; height: 36px; border-radius: 50%; border: 2px solid var(--white);
+    background: var(--white); color: var(--sky-deep); font: 700 18px/1 inherit; cursor: pointer;
+    transition: border-color .15s, background .15s;
+  }
+  .deck-ctrl button:hover { border-color: var(--sky); background: var(--cream); }
+  .deck-ctrl .count { font-size: 13px; color: var(--ink-soft); min-width: 40px; text-align: center; }
   .work .body { padding: 12px 16px 14px; }
   .work .meta { display: flex; align-items: baseline; gap: 8px; }
   .work .title { font-size: 16px; font-weight: 700; color: var(--ink); text-decoration: none; }
@@ -220,6 +241,12 @@
 
   <section class="works" id="works" hidden>
     <h2>睡醒時做的東西<small>做完就扔在這裡</small></h2>
+    <div class="deck" id="deck"></div>
+    <div class="deck-ctrl" id="deckCtrl">
+      <button type="button" id="deckPrev" aria-label="上一個作品">‹</button>
+      <span class="count" id="deckCount"></span>
+      <button type="button" id="deckNext" aria-label="下一個作品">›</button>
+    </div>
   </section>
 
   <footer>☁ 正在睡覺，晚點回你</footer>
@@ -337,6 +364,52 @@
     return box;
   }
 
+  function setupDeck() {
+    const deck = document.getElementById("deck");
+    const cards = [...deck.children];
+    const n = cards.length;
+    let cur = 0;
+
+    const render = () => {
+      cards.forEach((c, i) => {
+        let off = ((i - cur) % n + n) % n;
+        if (off > n / 2) off -= n;
+        const a = Math.abs(off);
+        c.classList.toggle("center", off === 0);
+        c.style.zIndex = 10 - a;
+        c.style.opacity = a > 1 ? 0 : a === 1 ? .75 : 1;
+        c.style.visibility = a > 1 ? "hidden" : "visible";
+        c.style.transform =
+          `translateX(calc(-50% + ${off * 46}%)) rotateY(${-off * 32}deg) scale(${a ? .82 : 1})`;
+      });
+      document.getElementById("deckCount").textContent = `${cur + 1} / ${n}`;
+    };
+    const go = (d) => { cur = (cur + d + n) % n; render(); };
+
+    // 卡片高度不一樣，舞台取最高的那張
+    const fit = () => { deck.style.height = Math.max(...cards.map(c => c.offsetHeight)) + "px"; };
+    new ResizeObserver(fit).observe(deck);
+    cards.forEach(c => new ResizeObserver(fit).observe(c));
+
+    cards.forEach((c, i) => c.addEventListener("click", () => {
+      if (!c.classList.contains("center")) { cur = i; render(); }
+    }));
+    document.getElementById("deckPrev").onclick = () => go(-1);
+    document.getElementById("deckNext").onclick = () => go(1);
+
+    // 手機左右滑
+    let x0 = null;
+    deck.addEventListener("pointerdown", e => { x0 = e.clientX; });
+    deck.addEventListener("pointerup", e => {
+      if (x0 === null) return;
+      const dx = e.clientX - x0; x0 = null;
+      if (Math.abs(dx) > 40) go(dx < 0 ? 1 : -1);
+    });
+
+    if (n < 2) document.getElementById("deckCtrl").style.display = "none";
+    render(); fit();
+  }
+
   fetch(WORKS_CSV_URL)
     .then(r => r.text())
     .then(text => {
@@ -344,6 +417,7 @@
         .filter(r => (r[1] || "").trim());
       rows.sort((a, b) => (b[0] || "").localeCompare(a[0] || "")); // 新的在上面
       const sec = document.getElementById("works");
+      const deck = document.getElementById("deck");
       rows.forEach(r => {
         const [date, name, link, note] = r.map(x => (x || "").trim());
         const pics = r.slice(4).map(x => x.trim()).filter(x => /^https?:\/\//.test(x));
@@ -359,9 +433,9 @@
         body.appendChild(meta);
         if (note) body.appendChild(el("p", "note", note));
         card.appendChild(body);
-        sec.appendChild(card);
+        deck.appendChild(card);
       });
-      if (rows.length) sec.hidden = false;
+      if (rows.length) { sec.hidden = false; setupDeck(); }
     })
     .catch(() => {});
 </script>
