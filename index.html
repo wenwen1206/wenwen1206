@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>問問</title>
+<meta name="description" content="問問的小角落：想睡覺到永遠。">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>☁️</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --sky: #8fcdf0;
+    --sky-deep: #4a9fd1;
+    --sky-soft: #dff1fb;
+    --cream: #fff8ea;
+    --cream-deep: #f6e8c9;
+    --white: #ffffff;
+    --ink: #3d5566;
+    --ink-soft: #7c93a3;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { min-height: 100%; }
+  body {
+    font-family: "Zen Maru Gothic", "PingFang TC", "Microsoft JhengHei", sans-serif;
+    color: var(--ink);
+    background: var(--sky-soft);
+    background-image:
+      radial-gradient(circle at 15% 10%, var(--white) 0 60px, transparent 61px),
+      radial-gradient(circle at 22% 12%, var(--white) 0 45px, transparent 46px),
+      radial-gradient(circle at 85% 30%, var(--white) 0 50px, transparent 51px),
+      radial-gradient(circle at 78% 32%, var(--white) 0 35px, transparent 36px),
+      linear-gradient(180deg, var(--sky-soft) 0%, var(--cream) 100%);
+    background-attachment: fixed;
+    display: flex;
+    justify-content: center;
+    padding: 48px 16px 40px;
+  }
+  main {
+    width: 100%;
+    max-width: 440px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+  }
+
+  /* 頭像 */
+  .avatar {
+    width: 104px; height: 104px;
+    border-radius: 50%;
+    background: var(--cream);
+    border: 4px solid var(--white);
+    box-shadow: 0 0 0 3px var(--sky);
+    display: grid; place-items: center;
+    font-size: 44px; font-weight: 700;
+    color: var(--sky-deep);
+  }
+  .name { font-size: 28px; font-weight: 700; letter-spacing: .08em; }
+  .bio {
+    font-size: 15px; color: var(--ink-soft);
+    display: flex; align-items: center; gap: 6px;
+  }
+  .zzz { display: inline-block; animation: float 2.4s ease-in-out infinite; }
+  @keyframes float { 50% { transform: translateY(-4px); } }
+
+  /* 興趣標籤 */
+  .tags { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+  .tag {
+    font-size: 13px;
+    padding: 5px 12px;
+    border-radius: 999px;
+    background: var(--white);
+    border: 2px solid var(--sky-soft);
+  }
+  .tag.sleep { background: var(--cream-deep); border-color: var(--cream-deep); font-weight: 700; }
+
+  /* 輪播 */
+  .marquee {
+    width: 100%;
+    height: 47px;
+    overflow: hidden;
+    border-radius: 14px;
+    background: var(--white);
+    border: 2px solid var(--white);
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+            mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+  }
+  .track {
+    display: flex;
+    height: 100%;
+    width: max-content;
+    animation: slide var(--dur, 20s) linear infinite;
+  }
+  .marquee:hover .track { animation-play-state: paused; }
+  .track img {
+    height: 100%;
+    width: auto;
+    padding: 6px 8px;
+    object-fit: contain;
+    flex: none;
+  }
+  @keyframes slide {
+    from { transform: translateX(-50%); }
+    to   { transform: translateX(0); }
+  }
+
+  /* 連結按鈕：扁扁的 */
+  .links { width: 100%; display: flex; flex-direction: column; gap: 12px; }
+  .link {
+    display: flex; align-items: center; gap: 12px;
+    width: 100%;
+    padding: 14px 18px;
+    border-radius: 16px;
+    background: var(--white);
+    border: 2px solid var(--white);
+    color: var(--ink);
+    text-decoration: none;
+    font-size: 16px; font-weight: 700;
+    transition: transform .15s, border-color .15s, background .15s;
+  }
+  .link:hover, .link:focus-visible {
+    transform: translateY(-2px);
+    border-color: var(--sky);
+    background: var(--cream);
+    outline: none;
+  }
+  .link .ico {
+    width: 32px; height: 32px; flex: none;
+    border-radius: 10px;
+    background: var(--sky-soft);
+    color: var(--sky-deep);
+    display: grid; place-items: center;
+  }
+  .link .ico svg { width: 18px; height: 18px; fill: currentColor; }
+  .link .label { flex: 1; text-align: center; margin-right: 44px; }
+
+  footer { font-size: 12px; color: var(--ink-soft); margin-top: 8px; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .track, .zzz { animation: none; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <div class="avatar" aria-hidden="true">問</div>
+  <h1 class="name">問問</h1>
+  <p class="bio">想睡覺到永遠 <span class="zzz">zZ</span></p>
+
+  <div class="tags">
+    <span class="tag">畫畫</span>
+    <span class="tag">手書</span>
+    <span class="tag">影片</span>
+    <span class="tag">cosplay</span>
+    <span class="tag">羊毛氈</span>
+    <span class="tag">vibe coding</span>
+    <span class="tag sleep">但基本在睡覺</span>
+  </div>
+
+  <div class="marquee" aria-label="圖片輪播">
+    <div class="track" id="track"></div>
+  </div>
+
+  <nav class="links">
+    <a class="link" href="https://www.plurk.com/ccy646889" target="_blank" rel="noopener">
+      <span class="ico"><svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zm-3 8a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm6 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm-3 6c-2.2 0-4-1.4-4.5-3h9c-.5 1.6-2.3 3-4.5 3z"/></svg></span>
+      <span class="label">Plurk</span>
+    </a>
+    <a class="link" href="https://x.com/wen120606" target="_blank" rel="noopener">
+      <span class="ico"><svg viewBox="0 0 24 24"><path d="M17.8 3h3.1l-6.8 7.7 8 10.3h-6.2l-4.9-6.3L5.4 21H2.3l7.2-8.3L1.8 3h6.4l4.4 5.8L17.8 3zm-1.1 16.2h1.7L7.4 4.7H5.6l11.1 14.5z"/></svg></span>
+      <span class="label">X (Twitter)</span>
+    </a>
+    <a class="link" href="https://www.instagram.com/wen120606/" target="_blank" rel="noopener">
+      <span class="ico"><svg viewBox="0 0 24 24"><path d="M7.5 2h9A5.5 5.5 0 0 1 22 7.5v9a5.5 5.5 0 0 1-5.5 5.5h-9A5.5 5.5 0 0 1 2 16.5v-9A5.5 5.5 0 0 1 7.5 2zm0 2A3.5 3.5 0 0 0 4 7.5v9A3.5 3.5 0 0 0 7.5 20h9a3.5 3.5 0 0 0 3.5-3.5v-9A3.5 3.5 0 0 0 16.5 4h-9zM12 7a5 5 0 1 1 0 10 5 5 0 0 1 0-10zm0 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6zm5.3-3.3a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/></svg></span>
+      <span class="label">Instagram</span>
+    </a>
+    <a class="link" href="https://www.threads.com/@wen120606" target="_blank" rel="noopener">
+      <span class="ico"><svg viewBox="0 0 24 24"><path d="M12.2 22c-3 0-5.3-1-6.8-2.9C4 17.4 3.3 15 3.3 12s.7-5.4 2.1-7.1C6.9 3 9.2 2 12.2 2c2.3 0 4.2.6 5.6 1.8 1.4 1.1 2.3 2.6 2.8 4.5l-2 .5c-.8-3-3-4.7-6.4-4.8-2.3 0-4 .7-5.1 2.2C6 7.5 5.4 9.5 5.4 12s.6 4.5 1.7 5.9c1.1 1.4 2.8 2.2 5.1 2.2 2 0 3.4-.5 4.5-1.5 1.2-1.2 1.2-2.6.8-3.6-.2-.6-.7-1.1-1.4-1.5-.2 1.3-.6 2.3-1.3 3.1-.9 1-2.1 1.5-3.6 1.6-1.2.1-2.3-.2-3.2-.8-1-.7-1.6-1.7-1.6-2.9-.1-2.3 1.8-4 4.7-4.2 1-.1 2 0 2.9.1-.1-.7-.4-1.3-.8-1.7-.5-.6-1.3-.8-2.3-.8-1 0-2.1.3-2.7 1.3l-1.7-1.1c.9-1.4 2.5-2.1 4.4-2.1 1.6 0 2.9.5 3.8 1.5.8.9 1.2 2.1 1.4 3.6.6.3 1.2.6 1.6 1.1 1 1 1.6 2.3 1.6 3.8 0 1.6-.6 3.1-1.8 4.3-1.4 1.4-3.3 2.1-5.7 2.1zm.6-9.3h-.6c-1.8.1-2.9.9-2.8 2.1 0 .4.2.8.7 1.1.5.3 1.1.5 1.9.4 1.6-.1 2.6-1 2.9-3.3-.7-.2-1.4-.3-2.1-.3z"/></svg></span>
+      <span class="label">Threads</span>
+    </a>
+    <a class="link" href="https://www.facebook.com/wen.wen.505271/" target="_blank" rel="noopener">
+      <span class="ico"><svg viewBox="0 0 24 24"><path d="M14 8.5V6.8c0-.8.2-1.3 1.4-1.3H17V2.2C16.7 2.1 15.6 2 14.3 2 11.6 2 10 3.6 10 6.6v1.9H7V12h3v10h4V12h2.8l.4-3.5H14z"/></svg></span>
+      <span class="label">Facebook</span>
+    </a>
+  </nav>
+
+  <footer>☁ 正在睡覺，晚點回你</footer>
+</main>
+
+<script>
+  const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQLqCrWEIetydwjFFAclHLZx4Bi2qP5f4SA01dKWfhZm9ghLd-gajuTRYdZLlq18EvzSwj6D43j-1NJ/pub?gid=934528779&single=true&output=csv";
+  const PX_PER_SEC = 40; // 滾動速度，數字越大越快
+
+  const track = document.getElementById("track");
+
+  function build(urls) {
+    if (!urls.length) { track.parentElement.style.display = "none"; return; }
+
+    const makeImg = (src) => {
+      const img = new Image();
+      img.src = src; img.alt = ""; img.loading = "eager"; img.decoding = "async";
+      return img;
+    };
+
+    // 先放一組，若寬度不足就重複，直到超過容器寬度
+    const box = track.parentElement.clientWidth;
+    const half = document.createElement("div");
+    half.style.display = "flex";
+    let guard = 0;
+    do {
+      urls.forEach(u => half.appendChild(makeImg(u)));
+      guard++;
+    } while (guard < 60 && half.childElementCount * 47 < box * 1.2);
+
+    // 兩份一模一樣接起來，動畫移動 50% 就能無縫循環
+    track.append(...half.cloneNode(true).childNodes, ...half.childNodes);
+
+    const setDur = () => {
+      const w = track.scrollWidth / 2;
+      track.style.setProperty("--dur", Math.max(w / PX_PER_SEC, 4) + "s");
+    };
+    setDur();
+    window.addEventListener("load", setDur);
+  }
+
+  fetch(CSV_URL)
+    .then(r => r.text())
+    .then(text => {
+      const urls = (text.match(/https?:\/\/[^\s,"']+/g) || []);
+      build(urls);
+    })
+    .catch(() => build([]));
+</script>
+</body>
+</html>
